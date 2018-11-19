@@ -23,7 +23,7 @@ import zipfile
 
 import tempfile
 
-from google.cloud import storage  # pylint: disable=no-name-in-module
+#from google.cloud import storage  # pylint: disable=no-name-in-module
 
 import trainer
 
@@ -113,6 +113,16 @@ def main(unparsed_args=None):  # pylint: disable=too-many-statements
   parser.add_argument("--learning_rate", default=0.001, type=float)
 
   parser.add_argument(
+    "--no_preprocess",
+    action="store_true",
+    help="Skip the preprossecing step.")
+
+  parser.add_argument(
+    "--no_tempdir",
+    action="store_true",
+    help="Do not store in an intermediate temp dir.")
+
+  parser.add_argument(
     "--input_data",
     type=str,
     default="",
@@ -161,11 +171,15 @@ def main(unparsed_args=None):  # pylint: disable=too-many-statements
 
   csv_file = process_input_file(args.input_data)
 
-  # Use a temporary directory for all the outputs.
-  # We will then copy the files to the final directory.
-  output_dir = tempfile.mkdtemp()
+  if args.no_tempdir:
+    output_dir = os.getcwd()
+  else:
+    # Use a temporary directory for all the outputs.
+    # We will then copy the files to the final directory.
+    output_dir = tempfile.mkdtemp()
+
   model_trainer = trainer.Trainer(output_dir)
-  model_trainer.preprocess(csv_file, args.sample_size)
+  model_trainer.preprocess(csv_file, args.sample_size, args.no_preprocess)
 
   if mode == "estimator":
     wait_for_preprocessing(model_trainer.preprocessed_bodies)

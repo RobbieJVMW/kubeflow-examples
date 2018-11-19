@@ -58,7 +58,7 @@ class Trainer(object): #pylint: disable=too-many-instance-attributes
     self.title_pp = None
     self.body_pp = None
 
-  def preprocess(self, data_file, num_samples=None):
+  def preprocess(self, data_file, num_samples=None, dry_run=False):
     """Preprocess the input.
 
     Trains preprocessors and splits the data into train and test sets.
@@ -80,6 +80,9 @@ class Trainer(object): #pylint: disable=too-many-instance-attributes
       traindf, self.test_df = train_test_split(sampled, test_size=.10)
     else:
       traindf, self.test_df = train_test_split(pd.read_csv(data_file), test_size=.10)
+
+    if dry_run:
+      return
 
     # Print stats about the shape of the data.
     logging.info('Train: %d rows %d columns', traindf.shape[0], traindf.shape[1])
