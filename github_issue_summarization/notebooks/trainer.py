@@ -82,6 +82,7 @@ class Trainer(object): #pylint: disable=too-many-instance-attributes
       traindf, self.test_df = train_test_split(pd.read_csv(data_file), test_size=.10)
 
     if dry_run:
+      logging.info('*** Omitting preprocessing ***')
       return
 
     # Print stats about the shape of the data.

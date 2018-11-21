@@ -126,12 +126,14 @@ def main(unparsed_args=None):  # pylint: disable=too-many-statements
     "--input_data",
     type=str,
     default="",
+    required=True,
     help="The input location. Can be a GCS or local file path.")
 
   parser.add_argument(
     "--output_model",
     type=str,
     default="",
+    required=True,
     help="The output location for the model GCS or local file path.")
 
   parser.add_argument(
