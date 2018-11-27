@@ -137,6 +137,10 @@ def main(unparsed_args=None):  # pylint: disable=too-many-statements
     help="The output location for the model GCS or local file path.")
 
   parser.add_argument(
+    "--output_test_dataset_dpkl",
+    type=str,
+    default="test_df.dpkl")
+  parser.add_argument(
     "--output_body_preprocessor_dpkl",
     type=str,
     default="body_pp.dpkl")
@@ -210,6 +214,7 @@ def main(unparsed_args=None):  # pylint: disable=too-many-statements
     model_trainer.train_estimator()
 
   pairs.extend([
+    (model_trainer.test_df_file, args.output_test_dataset_dpkl),
     (model_trainer.body_pp_file, args.output_body_preprocessor_dpkl),
     (model_trainer.title_pp_file, args.output_title_preprocessor_dpkl),
     (model_trainer.preprocessed_titles, args.output_train_title_vecs_npy),

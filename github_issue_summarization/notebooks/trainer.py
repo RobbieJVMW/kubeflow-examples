@@ -40,6 +40,7 @@ class Trainer(object): #pylint: disable=too-many-instance-attributes
     self.task_index = self.tf_config_json.get('task', {}).get('index')
 
     # Files storing the preprocessors
+    self.test_df_file = os.path.join(self.output_dir, 'test_df.dpkl')
     self.body_pp_file = os.path.join(self.output_dir, 'body_pp.dpkl')
     self.title_pp_file = os.path.join(self.output_dir, 'title_pp.dpkl')
 
@@ -73,6 +74,13 @@ class Trainer(object): #pylint: disable=too-many-instance-attributes
     if self.job_name and self.job_name.lower() not in ["master", "chief"]:
       return
 
+    if dry_run:
+      logging.info('*** Omitting preprocessing: Just reading the test dataset. ***')
+      # Load self.testdf from disk
+      with open(self.test_df_file, 'rb') as f:
+        self.test_df = dpickle.load(f)
+      return
+
     # TODO(jlewi): The test data isn't being used for anything. How can
     # we configure evaluation?
     if num_samples:
@@ -80,10 +88,6 @@ class Trainer(object): #pylint: disable=too-many-instance-attributes
       traindf, self.test_df = train_test_split(sampled, test_size=.10)
     else:
       traindf, self.test_df = train_test_split(pd.read_csv(data_file), test_size=.10)
-
-    if dry_run:
-      logging.info('*** Omitting preprocessing ***')
-      return
 
     # Print stats about the shape of the data.
     logging.info('Train: %d rows %d columns', traindf.shape[0], traindf.shape[1])
@@ -110,6 +114,9 @@ class Trainer(object): #pylint: disable=too-many-instance-attributes
     logging.info('Example title after pre-processing: %s', train_title_vecs[0])
 
     # Save the preprocessor
+    with open(self.test_df_file, 'wb') as f:
+      dpickle.dump(self.test_df, f)
+
     with open(self.body_pp_file, 'wb') as f:
       dpickle.dump(self.body_pp, f)
 
