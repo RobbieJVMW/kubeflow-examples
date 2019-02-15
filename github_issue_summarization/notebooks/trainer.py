@@ -84,7 +84,13 @@ class Trainer(object): #pylint: disable=too-many-instance-attributes
     # TODO(jlewi): The test data isn't being used for anything. How can
     # we configure evaluation?
     if num_samples:
-      sampled = pd.read_csv(data_file).sample(n=num_samples)
+      chunksize = 100000  # rows
+      df = pd.DataFrame([])
+      for chunk in pd.read_csv(data_file, chunksize=chunksize, low_memory=True):
+          sample = chunk.sample(n=num_samples)
+          df = df.append(sample)
+          del chunk
+      sampled = df.sample(n=num_samples)
       traindf, self.test_df = train_test_split(sampled, test_size=.10)
     else:
       traindf, self.test_df = train_test_split(pd.read_csv(data_file), test_size=.10)
