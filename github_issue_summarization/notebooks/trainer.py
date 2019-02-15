@@ -19,6 +19,27 @@ from ktext.preprocess import processor
 from sklearn.model_selection import train_test_split
 from seq2seq_utils import load_decoder_inputs, load_encoder_inputs, load_text_processor, Seq2Seq_Inference # # pylint: disable=line-too-long
 
+
+def sample_csv_file(data_file, sample_size, chunksize=100000):
+    """Read CSV in chunks to avoid high memory usage."""
+    df = pd.DataFrame([])
+    # XXX: chunksize is practically raws
+    logging.info("Sampling CSV file %s", data_file)
+    total_rows = 0
+    for chunk in pd.read_csv(data_file, chunksize=chunksize, low_memory=True):
+        rows = len(chunk)
+        total_rows += rows
+        # FIXME: Should we somehow change the chunk sample size based
+        # on the requested sample size?
+        logging.debug("Processing %s rows (total %s)...", rows, total_rows)
+        sample = chunk.sample(n=sample_size)
+        df = df.append(sample)
+        del chunk
+
+    logging.info("Successfully sampled CSV file of total rows %s.", total_rows)
+    return df.sample(n=sample_size)
+
+
 class Trainer(object): #pylint: disable=too-many-instance-attributes
   def __init__(self, output_dir):
     """Construct the trainer.
@@ -84,13 +105,7 @@ class Trainer(object): #pylint: disable=too-many-instance-attributes
     # TODO(jlewi): The test data isn't being used for anything. How can
     # we configure evaluation?
     if num_samples:
-      chunksize = 100000  # rows
-      df = pd.DataFrame([])
-      for chunk in pd.read_csv(data_file, chunksize=chunksize, low_memory=True):
-          sample = chunk.sample(n=num_samples)
-          df = df.append(sample)
-          del chunk
-      sampled = df.sample(n=num_samples)
+      sampled = sample_csv_file(data_file, num_samples, 10000)
       traindf, self.test_df = train_test_split(sampled, test_size=.10)
     else:
       traindf, self.test_df = train_test_split(pd.read_csv(data_file), test_size=.10)
