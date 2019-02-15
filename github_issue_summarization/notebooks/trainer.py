@@ -32,6 +32,7 @@ def sample_csv_file(data_file, sample_size, chunksize=100000):
         # FIXME: Should we somehow change the chunk sample size based
         # on the requested sample size?
         logging.debug("Processing %s rows (total %s)...", rows, total_rows)
+        print('.', end='', flush=True)
         sample = chunk.sample(n=sample_size)
         df = df.append(sample)
         del chunk
