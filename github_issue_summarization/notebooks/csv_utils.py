@@ -2,7 +2,7 @@ import logging
 import pandas as pd
 
 
-def sample_csv_file(data_file, sample_size, chunksize=100000):
+def sample_csv_file(data_file, sample_size, chunksize=100000, fast=False):
     """Read CSV in chunks to avoid high memory usage."""
     df = pd.DataFrame([])
     # XXX: chunksize is practically raws
@@ -17,6 +17,8 @@ def sample_csv_file(data_file, sample_size, chunksize=100000):
         sample = chunk.sample(n=sample_size)
         df = df.append(sample).sample(n=sample_size)
         del chunk
+        if fast and len(df) >= sample_size:
+            break
 
     logging.info("Successfully sampled CSV file %s: %s out of total %s rows.",
                  data_file, len(df), total_rows)
