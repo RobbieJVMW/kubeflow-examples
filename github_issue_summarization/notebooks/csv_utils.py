@@ -14,10 +14,10 @@ def sample_csv_file(data_file, sample_size, chunksize=100000):
         # FIXME: Should we somehow change the chunk sample size based
         # on the requested sample size?
         logging.debug("Processing %s rows (total %s)...", rows, total_rows)
-        print('.', end='', flush=True)
         sample = chunk.sample(n=sample_size)
-        df = df.append(sample)
+        df = df.append(sample).sample(n=sample_size)
         del chunk
 
-    logging.info("Successfully sampled CSV file of total rows %s.", total_rows)
-    return df.sample(n=sample_size)
+    logging.info("Successfully sampled CSV file %s: %s out of total %s rows.",
+                 data_file, len(df), total_rows)
+    return df
