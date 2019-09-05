@@ -174,7 +174,6 @@ def kubeflow_deploy_op(model: 'TensorFlow model', tf_server_name, pvc_name,
 )
 def taxi_cab_classification(
         rok_url,
-        rok_register_url,
         pvc_size='1Gi',
         project='tfx-taxi-pipeline-on-prem',
         column_names='taxi-cab-classification/column-names.json',
