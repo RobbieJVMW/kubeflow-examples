@@ -274,6 +274,7 @@ def taxi_cab_classification(
     snapshot = dsl.VolumeSnapshotOp(
         name='snapshot-volume',
         resource_name='snapshot-final',
+        annotations={'rok/register': rok_register_url},
         volume=vop.volume.after(analysis, prediction)
     )
 
